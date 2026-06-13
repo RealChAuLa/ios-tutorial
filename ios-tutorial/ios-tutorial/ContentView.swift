@@ -9,11 +9,19 @@ import SwiftUI
 
 struct ContentView: View {
     @State var score = 0
+    @State var timeRemaining = 10
+    @State var isGameActive = true
     
     var body: some View {
         VStack(spacing: 40) {
-            Text("Tap Frenzy")
-                .font(.title)
+            HStack {
+                Text("Tap Frenzy")
+                    .font(.title)
+                Spacer()
+                Text("Time: \(timeRemaining)s")
+                    .font(.headline)
+            }
+            .padding()
             
             Text("Score: \(score)")
                 .font(.system(size: 32))
@@ -21,7 +29,9 @@ struct ContentView: View {
             Spacer()
             
             Button(action: {
-                score += 1
+                if isGameActive {
+                    score += 1
+                }
             }) {
                 Text("TAP ME")
                     .font(.title)
@@ -30,11 +40,19 @@ struct ContentView: View {
                     .background(Color.blue)
                     .clipShape(Circle())
             }
+            .disabled(!isGameActive)
             
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray.opacity(0.1))
+        .onReceive(Timer.publish(every: 1).autoconnect()) { _ in
+            if timeRemaining > 0 {
+                timeRemaining -= 1
+            } else {
+                isGameActive = false
+            }
+        }
     }
 }
 
