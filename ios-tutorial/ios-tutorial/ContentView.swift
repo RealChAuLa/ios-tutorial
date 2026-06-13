@@ -6,51 +6,68 @@
 //
 
 import SwiftUI
+internal import Combine
 
 struct ContentView: View {
-    @State var score = 0
-    @State var timeRemaining = 10
-    @State var isGameActive = true
+    @State private var score = 0
+    @State private var timeRemaining = 10
+    @State private var isGameActive = true
     
     var body: some View {
-        VStack(spacing: 40) {
-            HStack {
-                Text("Tap Frenzy")
-                    .font(.title)
-                Spacer()
+        // If game is running, show the game view
+        if isGameActive {
+            VStack(spacing: 50) {
                 Text("Time: \(timeRemaining)s")
                     .font(.headline)
-            }
-            .padding()
-            
-            Text("Score: \(score)")
-                .font(.system(size: 32))
-            
-            Spacer()
-            
-            Button(action: {
-                if isGameActive {
-                    score += 1
-                }
-            }) {
-                Text("TAP ME")
+                    .foregroundColor(.red)
+                
+                Text("Tap Frenzy")
+                    .font(.largeTitle)
+                    .bold()
+                
+                Text("Score: \(score)")
                     .font(.title)
-                    .foregroundColor(.white)
-                    .frame(width: 150, height: 150)
-                    .background(Color.blue)
-                    .clipShape(Circle())
+                
+                Button(action: {
+                    score += 1
+                }) {
+                    Text("TAP ME")
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.white)
+                        .frame(width: 150, height: 150)
+                        .background(Color.blue)
+                        .clipShape(Circle())
+                }
             }
-            .disabled(!isGameActive)
-            
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.gray.opacity(0.1))
-        .onReceive(Timer.publish(every: 1).autoconnect()) { _ in
-            if timeRemaining > 0 {
-                timeRemaining -= 1
-            } else {
-                isGameActive = false
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                if timeRemaining > 0 {
+                    timeRemaining -= 1
+                } else {
+                    isGameActive = false
+                }
+            }
+        } else {
+            // Else, show the Game Over view
+            VStack(spacing: 30) {
+                Text("Game Over!")
+                    .font(.largeTitle)
+                    .bold()
+                
+                Text("Final Score: \(score)")
+                    .font(.title)
+                
+                Button("Play Again") {
+                    // Reset variables
+                    score = 0
+                    timeRemaining = 10
+                    isGameActive = true
+                }
+                .font(.headline)
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
             }
         }
     }
