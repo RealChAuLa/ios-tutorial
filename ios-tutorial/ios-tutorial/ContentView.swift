@@ -8,8 +8,9 @@ import Combine
 
 // MARK: - Challenge Type
 
-enum Challenge {
+enum Challenge: CaseIterable, Equatable {
     case combo
+    case trapColour
 }
 
 // MARK: - Content View
@@ -19,8 +20,9 @@ struct ContentView: View {
     @State private var timeRemaining = 10
     @State private var isGameActive = true
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var challengeTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
-    let currentChallenge: Challenge = .combo
+    @State private var currentChallenge: Challenge = Challenge.allCases.randomElement()!
 
     var body: some View {
         if isGameActive {
@@ -32,6 +34,11 @@ struct ContentView: View {
                         isGameActive = false
                     }
                 }
+                .onReceive(challengeTimer) { _ in
+                                    currentChallenge = Challenge.allCases
+                                        .filter { $0 != currentChallenge }
+                                        .randomElement()!
+                                }
         } else {
             gameOverView
         }
@@ -49,10 +56,10 @@ struct ContentView: View {
                 score = 0
                 timeRemaining = 10
                 timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-                resetChallengeState()
+                challengeTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+                currentChallenge = Challenge.allCases.randomElement()!
                 isGameActive = true
-            }
-            .font(.headline)
+            }            .font(.headline)
             .padding()
             .background(Color.green)
             .foregroundColor(.white)
@@ -63,11 +70,15 @@ struct ContentView: View {
     // MARK: - Challenge Router
 
     @ViewBuilder
-    var challengeView: some View {
-        switch currentChallenge {
-        case .combo:        ComboChallengeView(score: $score, timeRemaining: $timeRemaining)
+        var challengeView: some View {
+            switch currentChallenge {
+            case .combo:
+                ComboChallengeView(score: $score, timeRemaining: $timeRemaining)
+            case .trapColour:
+                TrapColourChallengeView(score: $score, timeRemaining: $timeRemaining)
+            }
         }
-    }
+    
 
     func resetChallengeState() {
         // Each challenge view manages its own state via @State,
@@ -149,6 +160,77 @@ struct ComboChallengeView: View {
 
         score += multiplier
         lastTapTime = now
+    }
+}
+
+// MARK: - Challenge 2: Trap Colour (stub)
+
+struct TrapColourChallengeView: View {
+    @Binding var score: Int
+    @Binding var timeRemaining: Int
+
+    @State private var buttonColour: Color = .blue
+    @State private var colourTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
+
+    // The three possible colours and what each means
+    private let colours: [(color: Color, points: Int)] = [
+        (.green, +3),   // bonus
+        (.blue, +1),    // normal
+        (.gray, -2),    // penalty
+    ]
+
+    var body: some View {
+        VStack(spacing: 30) {
+            GameHeader(timeRemaining: timeRemaining, score: score, label: "Trap Colour")
+
+            // Hint legend
+            HStack(spacing: 16) {
+                Label("+3", systemImage: "circle.fill").foregroundColor(.green)
+                Label("+1", systemImage: "circle.fill").foregroundColor(.blue)
+                Label("-2", systemImage: "circle.fill").foregroundColor(.gray)
+            }
+            .font(.caption)
+
+            Button(action: handleTap) {
+                Text("TAP ME")
+                    .font(.title).bold()
+                    .foregroundColor(.white)
+                    .frame(width: 150, height: 150)
+                    .background(buttonColour)
+                    .clipShape(Circle())
+                    .animation(.easeInOut(duration: 0.3), value: buttonColour)
+            }
+
+            Text(hintText)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .onReceive(colourTimer) { _ in
+            switchColour()
+        }
+    }
+
+    // Show the player a hint based on current colour
+    var hintText: String {
+        switch buttonColour {
+        case .green: return "Bonus! Tap fast!"
+        case .gray:  return "Danger! Don't tap!"
+        default:     return "Tap to score"
+        }
+    }
+
+    func handleTap() {
+        let points = colours.first { $0.color == buttonColour }?.points ?? 1
+        score = max(0, score + points)   // floor at 0 so score can't go negative
+    }
+
+    func switchColour() {
+        // Pick any colour except the one currently showing
+        let next = colours
+            .map { $0.color }
+            .filter { $0 != buttonColour }
+            .randomElement() ?? .blue
+        buttonColour = next
     }
 }
 
