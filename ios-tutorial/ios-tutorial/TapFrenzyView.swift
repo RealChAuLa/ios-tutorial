@@ -16,6 +16,7 @@ enum Challenge: CaseIterable, Equatable {
 // MARK: - Content View
 
 struct TapFrenzyView: View {
+    @AppStorage("highScore_TapFrenzy") private var highScore = 0
     @State private var score = 0
     @State private var timeRemaining = 10
     @State private var isGameActive = true
@@ -32,6 +33,7 @@ struct TapFrenzyView: View {
                         timeRemaining -= 1
                     } else {
                         isGameActive = false
+                        if score > highScore { highScore = score }
                     }
                 }
                 .onReceive(challengeTimer) { _ in
@@ -64,6 +66,7 @@ struct TapFrenzyView: View {
             .background(Color.green)
             .foregroundColor(.white)
             .cornerRadius(10)
+            Text("High Score: \(highScore)").foregroundColor(.purple)
         }
     }
 

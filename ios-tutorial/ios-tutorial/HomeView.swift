@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HomeView : View{
     @AppStorage("highScore_lightItUp") private var highScore1 = 0
+    @AppStorage("highScore_TapFrenzy") private var highScore2 = 0
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 40) {
@@ -31,10 +33,9 @@ struct HomeView : View{
                         .cornerRadius(15)
                 }
                 
-                Text("Light It Up Best: \(highScore1)")
+                Text("Light It Up Best: \(highScore1) | Tap Frenzy Best: \(highScore2)")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
+                    .foregroundColor(.secondary)            }
         }
     }
 }
