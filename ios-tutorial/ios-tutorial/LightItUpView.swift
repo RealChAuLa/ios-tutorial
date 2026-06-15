@@ -8,6 +8,20 @@
 import SwiftUI
 import Combine
 
+struct GameLevel {
+    let cardCount: Int
+    let litCount: Int
+    let interval: TimeInterval
+    let name: String
+}
+
+let levels: [GameLevel] = [
+    GameLevel(cardCount: 3, litCount: 1, interval: 1.5, name: "L1"),
+    GameLevel(cardCount: 4, litCount: 1, interval: 1.2, name: "L2"),
+    GameLevel(cardCount: 6, litCount: 1, interval: 1.0, name: "L3"),
+    GameLevel(cardCount: 9, litCount: 2, interval: 0.8, name: "L4"),
+]
+
 struct LightItUpView: View {
     @State private var litIndex = 0
     @State private var score = 0
@@ -16,7 +30,11 @@ struct LightItUpView: View {
     @State private var hasStarted = false     // ← new
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var litTimer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
+    @State private var elapsed = 0
+    @State private var levelIndex = 0
 
+    var currentLevel: GameLevel { levels[levelIndex] }
+    
     var body: some View {
         VStack(spacing: 40) {
             if !hasStarted {
@@ -24,19 +42,35 @@ struct LightItUpView: View {
                     .font(.headline).padding()
                     .background(Color.green).foregroundColor(.white)
                     .cornerRadius(10)
-
+                
             } else if isGameActive {
                 Text("Score: \(score)").font(.title).bold()
-                HStack(spacing: 20) {
-                    ForEach(0..<3, id: \.self) { index in
+                
+                let columns = Array(
+                        repeating: GridItem(.flexible()),
+                        count: currentLevel.cardCount <= 4 ? currentLevel.cardCount : 3
+                    )
+                
+                LazyVGrid(columns: columns, spacing: 20) {
+                    ForEach(0..<currentLevel.cardCount, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 12)
                             .fill(index == litIndex ? Color.yellow : Color.gray)
-                            .frame(width: 100, height: 100)
+                            .frame(height: 100)
                             .onTapGesture {
                                 if index == litIndex { score += 1 } else { score -= 1 }
                             }
                     }
                 }
+                .padding()
+                
+                HStack {
+                    Text("Time: \(timeRemaining)s").foregroundColor(.red)
+                    Spacer()
+                    Text(currentLevel.name).foregroundColor(.blue).bold()
+                }
+                .font(.headline)
+                .padding(.horizontal)
+                
             } else {
                 VStack(spacing: 20) {
                     Text("Game Over!").font(.largeTitle).bold()
@@ -47,14 +81,29 @@ struct LightItUpView: View {
                         .cornerRadius(10)
                 }
             }
-            Text("Time: \(timeRemaining)s").foregroundColor(.red).font(.headline)
         }
         .onReceive(timer) { _ in
             guard isGameActive else { return }
-            if timeRemaining > 0 { timeRemaining -= 1 }
-            else { isGameActive = false }
-        }
-        .onReceive(litTimer) { _ in
+            if timeRemaining > 0 {
+                timeRemaining -= 1
+                elapsed += 1
+
+                // Check if level should change
+                let newIndex: Int
+                switch elapsed {
+                case 0..<15:  newIndex = 0
+                case 15..<30: newIndex = 1
+                case 30..<45: newIndex = 2
+                default:      newIndex = 3
+                }
+
+                if newIndex != levelIndex {
+                    levelIndex = newIndex
+                }
+            } else {
+                isGameActive = false
+            }
+        }        .onReceive(litTimer) { _ in
             guard isGameActive else { return }
             litIndex = Int.random(in: 0..<3)
         }
@@ -64,6 +113,8 @@ struct LightItUpView: View {
         score = 0
         timeRemaining = 60
         litIndex = 0
+        elapsed = 0
+        levelIndex = 0
         hasStarted = true
         isGameActive = true
         timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
