@@ -23,6 +23,7 @@ let levels: [GameLevel] = [
 ]
 
 struct LightItUpView: View {
+    @AppStorage("highScore_lightItUp") private var highScore = 0
     @State private var litIndices: Set<Int> = [0]
     @State private var score = 0
     @State private var timeRemaining = 60
@@ -38,6 +39,7 @@ struct LightItUpView: View {
     var body: some View {
         VStack(spacing: 40) {
             if !hasStarted {
+                Text("High Score: \(highScore)").font(.headline).foregroundColor(.yellow)
                 Button("Start") { startGame() }
                     .font(.headline).padding()
                     .background(Color.green).foregroundColor(.white)
@@ -51,11 +53,11 @@ struct LightItUpView: View {
                         count: currentLevel.cardCount <= 4 ? currentLevel.cardCount : 3
                     )
                 
-                LazyVGrid(columns: columns, spacing: 20) {
+                LazyVGrid(columns: columns, spacing: 30) {
                     ForEach(0..<currentLevel.cardCount, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 12)
                             .fill(litIndices.contains(index) ? Color.yellow : Color.gray)
-                            .frame(height: 100)
+                            .frame(height: 125)
                             .onTapGesture {
                                 if litIndices.contains(index) { score += 1 } else { score -= 1 }
                             }
@@ -64,8 +66,9 @@ struct LightItUpView: View {
                 .padding()
                 
                 HStack {
-                    Text("Time: \(timeRemaining)s").foregroundColor(.red)
+                    Text("Best: \(highScore)").foregroundColor(.purple)
                     Spacer()
+                    Text("Time: \(timeRemaining)s").foregroundColor(.red)
                     Text(currentLevel.name).foregroundColor(.blue).bold()
                 }
                 .font(.headline)
@@ -105,6 +108,7 @@ struct LightItUpView: View {
                 }
             } else {
                 isGameActive = false
+                if score > highScore { highScore = score }
             }
         }
         .onReceive(litTimer) { _ in

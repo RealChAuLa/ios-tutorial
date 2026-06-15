@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct HomeView : View{
+    @AppStorage("highScore_lightItUp") private var highScore1 = 0
     var body: some View {
-        // NavigationStack is required to move between screens
         NavigationStack {
             VStack(spacing: 40) {
                 
@@ -30,6 +30,10 @@ struct HomeView : View{
                         .background(Color.orange)
                         .cornerRadius(15)
                 }
+                
+                Text("Light It Up Best: \(highScore1)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
         }
     }
