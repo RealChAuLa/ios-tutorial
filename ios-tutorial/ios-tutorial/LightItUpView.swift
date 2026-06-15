@@ -23,7 +23,7 @@ let levels: [GameLevel] = [
 ]
 
 struct LightItUpView: View {
-    @State private var litIndex = 0
+    @State private var litIndices: Set<Int> = [0]
     @State private var score = 0
     @State private var timeRemaining = 60
     @State private var isGameActive = false   // ← changed to false
@@ -54,10 +54,10 @@ struct LightItUpView: View {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(0..<currentLevel.cardCount, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(index == litIndex ? Color.yellow : Color.gray)
+                            .fill(litIndices.contains(index) ? Color.yellow : Color.gray)
                             .frame(height: 100)
                             .onTapGesture {
-                                if index == litIndex { score += 1 } else { score -= 1 }
+                                if litIndices.contains(index) { score += 1 } else { score -= 1 }
                             }
                     }
                 }
@@ -99,20 +99,26 @@ struct LightItUpView: View {
 
                 if newIndex != levelIndex {
                     levelIndex = newIndex
+                    litIndices = [0]   // reset lit position so no stale yellow square
+                    // Restart lit timer at new speed
+                    litTimer = Timer.publish(every: levels[newIndex].interval, on: .main, in: .common).autoconnect()
                 }
             } else {
                 isGameActive = false
             }
-        }        .onReceive(litTimer) { _ in
+        }
+        .onReceive(litTimer) { _ in
             guard isGameActive else { return }
-            litIndex = Int.random(in: 0..<3)
+            let count = currentLevel.litCount
+            let picks = Array((0..<currentLevel.cardCount).shuffled().prefix(count))
+            litIndices = Set(picks)
         }
     }
 
     func startGame() {
         score = 0
         timeRemaining = 60
-        litIndex = 0
+        litIndices = [0]
         elapsed = 0
         levelIndex = 0
         hasStarted = true
