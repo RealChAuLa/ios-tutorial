@@ -33,7 +33,22 @@ struct HomeView : View{
                         .cornerRadius(15)
                 }
                 
-                Text("Light It Up Best: \(highScore1) | Tap Frenzy Best: \(highScore2)")
+                // Button 3: quiz rush
+                NavigationLink(destination: QuizRushView()) {
+                    Text("Quiz Rush")
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.white)
+                        .frame(width: 250, height: 80)
+                        .background(Color.green)
+                        .cornerRadius(15)
+                }
+                
+                //text for highscore topic
+                Text("High Scores")
+                    .foregroundColor(Color.secondary)
+                
+                Text("Light It Up : \(highScore1) | Tap Frenzy : \(highScore2) | Quiz Rush : ")
                     .font(.subheadline)
                     .foregroundColor(.secondary)            }
         }
