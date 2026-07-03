@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView : View{
     @AppStorage("highScore_lightItUp") private var highScore1 = 0
     @AppStorage("highScore_TapFrenzy") private var highScore2 = 0
+    @AppStorage("highScore_QuizRush") private var highScore3 = 0
 
     var body: some View {
         NavigationStack {
@@ -48,7 +49,7 @@ struct HomeView : View{
                 Text("High Scores")
                     .foregroundColor(Color.secondary)
                 
-                Text("Light It Up : \(highScore1) | Tap Frenzy : \(highScore2) | Quiz Rush : ")
+                Text("Light It Up : \(highScore1) | Tap Frenzy : \(highScore2) | Quiz Rush : \(highScore3)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)            }
         }

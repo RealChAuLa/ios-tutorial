@@ -7,47 +7,76 @@
 import SwiftUI
 
 struct QuizRushView: View {
-    // Connects the View to the ViewModel
     @StateObject private var viewModel = QuizRushViewModel()
     
     var body: some View {
         Group {
-            // Switch based on the current network state
-            switch viewModel.state {
-            case .loading:
-                ProgressView("Loading Trivia...")
-                    .scaleEffect(1.5)
-                
-            case .failed:
-                VStack(spacing: 20) {
-                    Text("Failed to load questions.")
-                        .font(.headline)
-                    Button("Retry") {
-                        Task { await viewModel.load() }
+            // NEW: Show the end screen if the game is over
+            if viewModel.isGameOver {
+                gameOverScreen
+            } else {
+                switch viewModel.state {
+                case .loading:
+                    ProgressView("Loading Trivia...")
+                        .scaleEffect(1.5)
+                    
+                case .failed:
+                    VStack(spacing: 20) {
+                        Text("Failed to load questions.")
+                            .font(.headline)
+                        Button("Retry") {
+                            Task { await viewModel.load() }
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
-                }
-                
-            case .loaded:
-                // unwrap the current question to  UI
-                if let currentQuestion = viewModel.currentQuestion {
-                    gameLayout(for: currentQuestion)
+                    
+                case .loaded:
+                    if let currentQuestion = viewModel.currentQuestion {
+                        gameLayout(for: currentQuestion)
+                    }
                 }
             }
         }
         .navigationTitle("Quiz Rush")
         .navigationBarTitleDisplayMode(.inline)
-        // Fetches data automatically when the view appears
         .task {
             await viewModel.load()
         }
     }
     
-    // seperated  the UI layout into a helper function to keep the switch statement clean
+    // NEW: The End Screen Layout
+    private var gameOverScreen: some View {
+        VStack(spacing: 30) {
+            Text("Quiz Complete!")
+                .font(.largeTitle)
+                .fontWeight(.heavy)
+            
+            VStack(spacing: 10) {
+                Text("Final Score")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                Text("\(viewModel.score)")
+                    .font(.system(size: 60, weight: .bold))
+            }
+            
+            Button(action: {
+                Task { await viewModel.resetGame() }
+            }) {
+                Text("Play Again")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .frame(width: 250, height: 60)
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(15)
+            }
+        }
+    }
+    
+    // EXISTING: Your game layout (unchanged)
     @ViewBuilder
     func gameLayout(for question: TriviaQuestion) -> some View {
         VStack(spacing: 20) {
-            // Header: Stats
             HStack {
                 Text("Question \(viewModel.currentIndex + 1) of \(viewModel.questions.count)")
                     .fontWeight(.bold)
@@ -60,7 +89,6 @@ struct QuizRushView: View {
             
             Spacer()
             
-            // Body: Question
             Text(question.question)
                 .font(.title)
                 .fontWeight(.bold)
@@ -70,7 +98,6 @@ struct QuizRushView: View {
             
             Spacer()
             
-            // Footer: Answer Buttons
             VStack(spacing: 15) {
                 let allAnswers = (question.incorrectAnswers + [question.correctAnswer]).shuffled()
                 

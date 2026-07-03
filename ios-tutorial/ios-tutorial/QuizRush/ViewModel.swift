@@ -8,11 +8,9 @@ import Foundation
 import SwiftUI
 import Combine
 
-// @MainActor ensures all UI updates happen on the main thread, which is required when updating Views from async network calls
 @MainActor
 final class QuizRushViewModel: ObservableObject {
     
-    // The view-state enum exactly as requested in the slides
     enum ViewState {
         case loading, loaded, failed
     }
@@ -22,16 +20,15 @@ final class QuizRushViewModel: ObservableObject {
     @Published var currentIndex = 0
     @Published var score = 0
     @Published var streak = 0
+    @Published var isGameOver = false // NEW: Tracks if the round is finished
     
     private let service = TriviaService()
     
-    // Helper to safely get the current question
     var currentQuestion: TriviaQuestion? {
         guard questions.indices.contains(currentIndex) else { return nil }
         return questions[currentIndex]
     }
     
-    // 1. Fetch data from the Service
     func load() async {
         state = .loading
         do {
@@ -43,7 +40,6 @@ final class QuizRushViewModel: ObservableObject {
         }
     }
     
-    // 2. Handle the game logic when a user taps an answer
     func handleAnswer(_ answer: String) {
         guard let current = currentQuestion else { return }
         
@@ -55,9 +51,29 @@ final class QuizRushViewModel: ObservableObject {
             score = max(0, score - 5)
         }
         
-        // Advance to the next question if we haven't reached the end
+        // Advance or end game
         if currentIndex < questions.count - 1 {
             currentIndex += 1
+        } else {
+            isGameOver = true
+            saveHighScore()
         }
+    }
+    
+    // NEW: Save score to match the key in your HomeView
+    private func saveHighScore() {
+        let currentHighScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
+        if score > currentHighScore {
+            UserDefaults.standard.set(score, forKey: "highScore_QuizRush")
+        }
+    }
+    
+    // NEW: Reset game state and pull 10 new questions
+    func resetGame() async {
+        currentIndex = 0
+        score = 0
+        streak = 0
+        isGameOver = false
+        await load()
     }
 }
