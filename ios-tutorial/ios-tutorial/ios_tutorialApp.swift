@@ -11,7 +11,7 @@ import SwiftUI
 struct ios_tutorialApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            MainTabView()
         }
     }
 }
