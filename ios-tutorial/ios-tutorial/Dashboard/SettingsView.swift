@@ -8,6 +8,31 @@ import SwiftUI
 
 // MARK: - Settings View
 struct SettingsView: View {
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
+    @AppStorage("notifHour") private var notifHour = 20
+    @AppStorage("notifMinute") private var notifMinute = 0
+    
+    private var timeBinding: Binding<Date> {
+        Binding<Date>(
+            get: {
+                var components = DateComponents()
+                components.hour = notifHour
+                components.minute = notifMinute
+                return Calendar.current.date(from: components) ?? Date()
+            },
+            set: { newDate in
+                let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                if let h = components.hour, let m = components.minute {
+                    notifHour = h
+                    notifMinute = m
+                    if notificationsEnabled {
+                        NotificationService.shared.scheduleDailyReminder(hour: h, minute: m)
+                    }
+                }
+            }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -35,11 +60,59 @@ struct SettingsView: View {
 
                         // Settings rows
                         VStack(spacing: 2) {
-                            SettingsRow(icon: "person.fill",           title: "Profile",       color: .appBlue)
+                            // ── Notification Settings ──
+                            VStack(spacing: 12) {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.appGold.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+                                        Image(systemName: "bell.fill")
+                                            .foregroundColor(.appGold)
+                                    }
+                                    Text("Daily Challenge Reminder")
+                                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Toggle("", isOn: $notificationsEnabled)
+                                        .tint(.appGreen)
+                                        .labelsHidden()
+                                        .onChange(of: notificationsEnabled) { _, newValue in
+                                            if newValue {
+                                                NotificationService.shared.requestPermission { granted in
+                                                    if granted {
+                                                        NotificationService.shared.scheduleDailyReminder(hour: notifHour, minute: notifMinute)
+                                                    } else {
+                                                        notificationsEnabled = false
+                                                    }
+                                                }
+                                            } else {
+                                                NotificationService.shared.cancelReminder()
+                                            }
+                                        }
+                                }
+                                
+                                if notificationsEnabled {
+                                    HStack {
+                                        Text("Reminder Time")
+                                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .padding(.leading, 50)
+                                        Spacer()
+                                        DatePicker("", selection: timeBinding, displayedComponents: .hourAndMinute)
+                                            .labelsHidden()
+                                            .tint(.appBlue)
+                                    }
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
+                                    .padding(.bottom, 4)
+                                }
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .animation(.easeInOut(duration: 0.25), value: notificationsEnabled)
+                            
                             Divider().padding(.leading, 64)
-                            SettingsRow(icon: "bell.fill",             title: "Notifications", color: .appGold)
-                            Divider().padding(.leading, 64)
-                            SettingsRow(icon: "lock.fill",             title: "Privacy",       color: .appPurple)
+                            SettingsRow(icon: "location.fill",             title: "Privacy",       color: .appPurple)
                             Divider().padding(.leading, 64)
                             SettingsRow(icon: "questionmark.circle.fill", title: "Help",       color: .appGreen)
                         }

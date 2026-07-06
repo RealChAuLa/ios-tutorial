@@ -34,6 +34,7 @@ struct TapFrenzyView: View {
                     } else {
                         isGameActive = false
                         if score > highScore { highScore = score }
+                        GameSessionStore.save(GameSession(mode: "TapFrenzy", score: score))
                     }
                 }
                 .onReceive(challengeTimer) { _ in

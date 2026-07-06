@@ -109,6 +109,7 @@ struct LightItUpView: View {
             } else {
                 isGameActive = false
                 if score > highScore { highScore = score }
+                GameSessionStore.save(GameSession(mode: "LightItUp", score: score))
             }
         }
         .onReceive(litTimer) { _ in

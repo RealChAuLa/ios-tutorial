@@ -66,6 +66,7 @@ final class QuizRushViewModel: ObservableObject {
         if score > currentHighScore {
             UserDefaults.standard.set(score, forKey: "highScore_QuizRush")
         }
+        GameSessionStore.save(GameSession(mode: "QuizRush", score: score))
     }
     
     // NEW: Reset game state and pull 10 new questions
