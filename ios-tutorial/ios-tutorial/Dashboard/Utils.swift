@@ -16,6 +16,8 @@ extension Color {
     static let appPurpleDark = Color(red: 160/255, green: 90/255,  blue: 210/255)
     static let appGold       = Color(red: 255/255, green: 200/255, blue: 0/255)
     static let appGoldDark   = Color(red: 230/255, green: 165/255, blue: 0/255)
+    static let appOrange     = Color(red: 255/255, green: 140/255, blue: 0/255)
+    static let appOrangeDark = Color(red: 220/255, green: 100/255, blue: 0/255)
     static let appRed        = Color(red: 255/255, green: 75/255,  blue: 75/255)
     static let appRedDark    = Color(red: 220/255, green: 50/255,  blue: 50/255)
 }

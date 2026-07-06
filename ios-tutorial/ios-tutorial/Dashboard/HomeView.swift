@@ -78,16 +78,16 @@ struct HomeView: View {
 
                             // Streak badge
                             HStack(spacing: 5) {
-                                Image(systemName: "flame.fill")
-                                    .foregroundStyle(.orange)
-                                    .font(.system(size: 16, weight: .bold))
                                 Text("\(dailyChallenge.streak)")
                                     .font(.appFont(16))
                                     .foregroundColor(.primary)
+                                Image(systemName: "flame.fill")
+                                    .foregroundColor(.appOrange)
+                                    .font(.system(size: 16, weight: .bold))
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .glassCard(cornerRadius: 16, tint: .orange)
+                            .glassCard(cornerRadius: 16, tint: .appOrange)
                         }
                         // Daily Challenge Card
                         DailyChallengeCard(manager: dailyChallenge)
