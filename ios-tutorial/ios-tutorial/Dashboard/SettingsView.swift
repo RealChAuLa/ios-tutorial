@@ -11,6 +11,7 @@ struct SettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
     @AppStorage("notifHour") private var notifHour = 20
     @AppStorage("notifMinute") private var notifMinute = 0
+    @AppStorage("locationEnabled") private var locationEnabled = false
     
     private var timeBinding: Binding<Date> {
         Binding<Date>(
@@ -112,7 +113,45 @@ struct SettingsView: View {
                             .animation(.easeInOut(duration: 0.25), value: notificationsEnabled)
                             
                             Divider().padding(.leading, 64)
-                            SettingsRow(icon: "location.fill",             title: "Privacy",       color: .appPurple)
+                            
+                            // ── Location Tracking Settings ──
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.appPurple.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+                                        Image(systemName: "location.fill")
+                                            .foregroundColor(.appPurple)
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Location Tracking")
+                                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                        Text("Tag game sessions with your location for Maps")
+                                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Toggle("", isOn: $locationEnabled)
+                                        .tint(.appPurple)
+                                        .labelsHidden()
+                                        .onChange(of: locationEnabled) { _, newValue in
+                                            if newValue {
+                                                LocationManager.shared.requestPermission { granted in
+                                                    if !granted {
+                                                        locationEnabled = false
+                                                    }
+                                                }
+                                            } else {
+                                                LocationManager.shared.stopTracking()
+                                            }
+                                        }
+                                }
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            
                             Divider().padding(.leading, 64)
                             SettingsRow(icon: "questionmark.circle.fill", title: "Help",       color: .appGreen)
                         }

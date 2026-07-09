@@ -34,7 +34,8 @@ struct TapFrenzyView: View {
                     } else {
                         isGameActive = false
                         if score > highScore { highScore = score }
-                        GameSessionStore.save(GameSession(mode: "TapFrenzy", score: score))
+                        let coords = LocationManager.shared.getLatLng()
+                        GameSessionStore.save(GameSession(mode: "TapFrenzy", score: score, latitude: coords?.latitude, longitude: coords?.longitude))
                     }
                 }
                 .onReceive(challengeTimer) { _ in

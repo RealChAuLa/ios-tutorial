@@ -6,12 +6,16 @@ struct GameSession: Codable, Identifiable {
     let mode: String          // "TapFrenzy", "LightItUp", "QuizRush"
     let score: Int
     let timestamp: Date
+    let latitude: Double?
+    let longitude: Double?
     
-    init(id: UUID = UUID(), mode: String, score: Int, timestamp: Date = Date()) {
+    init(id: UUID = UUID(), mode: String, score: Int, timestamp: Date = Date(), latitude: Double? = nil, longitude: Double? = nil) {
         self.id = id
         self.mode = mode
         self.score = score
         self.timestamp = timestamp
+        self.latitude = latitude
+        self.longitude = longitude
     }
 }
 

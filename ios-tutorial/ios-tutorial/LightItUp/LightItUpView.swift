@@ -109,7 +109,8 @@ struct LightItUpView: View {
             } else {
                 isGameActive = false
                 if score > highScore { highScore = score }
-                GameSessionStore.save(GameSession(mode: "LightItUp", score: score))
+                let coords = LocationManager.shared.getLatLng()
+                GameSessionStore.save(GameSession(mode: "LightItUp", score: score, latitude: coords?.latitude, longitude: coords?.longitude))
             }
         }
         .onReceive(litTimer) { _ in

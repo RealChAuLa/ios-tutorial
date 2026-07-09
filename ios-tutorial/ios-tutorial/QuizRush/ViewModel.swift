@@ -66,7 +66,8 @@ final class QuizRushViewModel: ObservableObject {
         if score > currentHighScore {
             UserDefaults.standard.set(score, forKey: "highScore_QuizRush")
         }
-        GameSessionStore.save(GameSession(mode: "QuizRush", score: score))
+        let coords = LocationManager.shared.getLatLng()
+        GameSessionStore.save(GameSession(mode: "QuizRush", score: score, latitude: coords?.latitude, longitude: coords?.longitude))
     }
     
     // NEW: Reset game state and pull 10 new questions
