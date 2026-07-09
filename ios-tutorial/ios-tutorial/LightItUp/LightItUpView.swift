@@ -59,6 +59,7 @@ struct LightItUpView: View {
                 }
             }
         }
+        .toolbar(.hidden,for: .tabBar) //to hide the navbar
     }
 }
 

@@ -38,6 +38,7 @@ struct TapFrenzyView: View {
             .cornerRadius(10)
             Text("High Score: \(viewModel.highScore)").foregroundColor(.purple)
         }
+        .toolbar(.hidden,for: .tabBar) //to hide the navbar
     }
 
     // MARK: - Challenge Router

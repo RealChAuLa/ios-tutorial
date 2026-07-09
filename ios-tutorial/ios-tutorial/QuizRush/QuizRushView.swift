@@ -42,6 +42,7 @@ struct QuizRushView: View {
         .task {
             await viewModel.load()
         }
+        .toolbar(.hidden,for: .tabBar) //to hide the navbar
     }
     
     // NEW: The End Screen Layout

@@ -50,6 +50,12 @@ struct GameSessionStore {
         let calendar = Calendar.current
         return loadAll().filter { calendar.isDateInToday($0.timestamp) }
     }
+    
+    /// Clears all recorded game sessions from storage and posts a notification.
+    static func clearAll() {
+        UserDefaults.standard.removeObject(forKey: storageKey)
+        NotificationCenter.default.post(name: .gameSessionSaved, object: nil)
+    }
 }
 
 // MARK: - Notification Names

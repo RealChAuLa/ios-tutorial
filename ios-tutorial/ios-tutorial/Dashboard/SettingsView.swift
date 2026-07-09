@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage("notifHour") private var notifHour = 20
     @AppStorage("notifMinute") private var notifMinute = 0
     @AppStorage("locationEnabled") private var locationEnabled = false
+    @State private var showClearConfirmation = false
     
     private var timeBinding: Binding<Date> {
         Binding<Date>(
@@ -41,27 +42,9 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: 18) {
-
-                        // Profile avatar
-                        VStack(spacing: 10) {
-                            Circle()
-                                .fill(LinearGradient(
-                                    colors: [.appGreen, .appBlue],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing))
-                                .frame(width: 84, height: 84)
-                                .overlay(Text("🦉").font(.system(size: 40)))
-                                .shadow(color: .appGreen.opacity(0.4), radius: 10, x: 0, y: 6)
-
-                            Text("Your Profile")
-                                .font(.appFont(20))
-                                .foregroundColor(.primary)  // adapts to dark mode
-                        }
-                        .padding(.top, 12)
-
                         // Settings rows
                         VStack(spacing: 2) {
-                            // ── Notification Settings ──
+                            // ── Notification Settings
                             VStack(spacing: 12) {
                                 HStack(spacing: 14) {
                                     ZStack {
@@ -153,7 +136,36 @@ struct SettingsView: View {
                             .padding(.vertical, 12)
                             
                             Divider().padding(.leading, 64)
-                            SettingsRow(icon: "questionmark.circle.fill", title: "Help",       color: .appGreen)
+                            
+                            // ── Clear All Game Data ──
+                            Button {
+                                showClearConfirmation = true
+                            } label: {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.red.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+                                        Image(systemName: "trash.fill")
+                                            .foregroundColor(.red)
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Clear All Game Data")
+                                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.red)
+                                        Text("Reset high scores, streaks, and map history")
+                                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                            }
+                            .buttonStyle(.plain)
                         }
                         .glassCard(cornerRadius: 20)
                     }
@@ -162,6 +174,37 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
+            .alert("Clear All Game Data?", isPresented: $showClearConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Clear Data", role: .destructive) {
+                    clearAllGameData()
+                }
+            } message: {
+                Text("This will permanently delete your game history, streaks, high scores, and map locations. This action cannot be undone.")
+            }
+        }
+    }
+    
+    private func clearAllGameData() {
+        // Clear stored game sessions and notify observers
+        GameSessionStore.clearAll()
+        
+        // Clear high scores
+        UserDefaults.standard.removeObject(forKey: "highScore_lightItUp")
+        UserDefaults.standard.removeObject(forKey: "highScore_LightItUp")
+        UserDefaults.standard.removeObject(forKey: "highScore_TapFrenzy")
+        UserDefaults.standard.removeObject(forKey: "highScore_QuizRush")
+        
+        // Clear daily challenge streak and history
+        UserDefaults.standard.removeObject(forKey: "dc_streak")
+        UserDefaults.standard.removeObject(forKey: "dc_lastCompletedDate")
+        UserDefaults.standard.removeObject(forKey: "dc_savedDayString")
+        UserDefaults.standard.removeObject(forKey: "dc_savedGameMode")
+        
+        // Trigger UI & Daily Challenge refresh
+        Task { @MainActor in
+            DailyChallengeManager.shared.updateStreakAndCompletion()
+            NotificationCenter.default.post(name: .gameSessionSaved, object: nil)
         }
     }
 }
