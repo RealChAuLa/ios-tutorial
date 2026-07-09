@@ -20,6 +20,7 @@ final class QuizRushViewModel: ObservableObject {
     @Published var currentIndex = 0
     @Published var score = 0
     @Published var streak = 0
+    @Published var highScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
     @Published var isGameOver = false // NEW: Tracks if the round is finished
     
     private let service = TriviaService()
@@ -31,6 +32,7 @@ final class QuizRushViewModel: ObservableObject {
     
     func load() async {
         state = .loading
+        highScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
         do {
             questions = try await service.fetchQuestions()
             state = .loaded
@@ -65,6 +67,9 @@ final class QuizRushViewModel: ObservableObject {
         let currentHighScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
         if score > currentHighScore {
             UserDefaults.standard.set(score, forKey: "highScore_QuizRush")
+            highScore = score
+        } else {
+            highScore = currentHighScore
         }
         let coords = LocationManager.shared.getLatLng()
         GameSessionStore.save(GameSession(mode: "QuizRush", score: score, latitude: coords?.latitude, longitude: coords?.longitude))
