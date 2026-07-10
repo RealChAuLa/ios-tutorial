@@ -41,7 +41,20 @@ struct SettingsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 18) {
+                    VStack(spacing: 24) {
+                        // ── Header Row ──────────────────────────────────────
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Settings")
+                                    .font(.appFont(28))
+                                    .foregroundColor(.primary)
+//                                Text("Customize your preferences & notifications")
+//                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+//                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        
                         // Settings rows
                         VStack(spacing: 2) {
                             // ── Notification Settings
@@ -172,8 +185,8 @@ struct SettingsView: View {
                     .padding(20)
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .alert("Clear All Game Data?", isPresented: $showClearConfirmation) {
                 Button("Cancel", role: .cancel) { }
                 Button("Clear Data", role: .destructive) {

@@ -124,6 +124,7 @@ struct MapView: View {
                     .padding(16)
                     .glassCard(cornerRadius: 22)
                     
+                    
                     // Filter Capsules Row
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -140,10 +141,14 @@ struct MapView: View {
                                 withAnimation(.easeInOut) { viewModel.filterMode = "QuizRush" }
                             }
                         }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                     }
+                    .glassCard(cornerRadius: 22)
+                    .clipShape(Capsule())
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
                 
                 // Bottom Overlay: Selected Session Card
                 VStack {

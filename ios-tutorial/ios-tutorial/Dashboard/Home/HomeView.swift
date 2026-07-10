@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-// MARK: - Home View
 struct HomeView: View {
     @AppStorage("highScore_lightItUp") private var highScore1 = 0
     @AppStorage("highScore_TapFrenzy")  private var highScore2 = 0
@@ -17,20 +15,16 @@ struct HomeView: View {
                 ScrollView {
                     VStack(spacing: 22) {
 
-                        // ── Header row: title + streak pill ──────────────────
+                        // header and streak icon
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Let's play!")
                                     .font(.appFont(28))
                                     .foregroundColor(.primary)
-                                Text("Pick a game to keep your streak alive")
-                                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                                    .foregroundColor(.secondary)
                             }
 
                             Spacer()
 
-                            // Streak badge
                             HStack(spacing: 5) {
                                 Text("\(dailyChallenge.streak)")
                                     .font(.appFont(16))
@@ -60,7 +54,7 @@ struct HomeView: View {
                             )
                             GameCard(
                                 title: "Light It Up",
-                                subtitle: "Memory & pattern game",
+                                subtitle: "Pattern game",
                                 icon: "bolt.fill",
                                 color: .appGold,
                                 colorDark: .appGoldDark,
@@ -84,7 +78,7 @@ struct HomeView: View {
                     dailyChallenge.updateStreakAndCompletion()
                 }
             }
-            // No navigation title – "Dashboard" label removed
+            // to remove the navigation dashboard title
             .navigationBarHidden(true)
         }
     }
@@ -129,8 +123,8 @@ struct GameCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(.appGold)
-                        Text("Best: \(highScore)")
+                            .foregroundColor(.black)
+                        Text("\(highScore)")
                             .font(.system(size: 11, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)       // high contrast, adapts to dark mode
                     }
@@ -149,7 +143,7 @@ struct GameCard: View {
     }
 }
 
-// MARK: - Creative Daily Challenge Card
+// MARK: - Daily Challenge Card
 struct DailyChallengeCard: View {
     @ObservedObject var manager: DailyChallengeManager
     @State private var isPulsing = false
@@ -189,14 +183,12 @@ struct DailyChallengeCard: View {
                     
                     Spacer()
                     
-                    Text("Expires in 12h")
+                    Text("Expires at 00h")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(.white.opacity(0.8))
                 }
                 
-                // Main Content
                 HStack(spacing: 16) {
-                    // Game Icon Circle with Glow
                     ZStack {
                         Circle()
                             .fill(LinearGradient(colors: [manager.gameColor, manager.gameColorDark],
@@ -210,18 +202,17 @@ struct DailyChallengeCard: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(manager.gameTitle)
+                        Text(manager.gameTitle) //today game title
                             .font(.appFont(22))
                             .foregroundColor(.white)
                         
-                        Text("Play today's featured game to earn extra XP and protect your streak!")
+                        Text("protect your streak!")
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.9))
                             .lineLimit(3)
                     }
                 }
                 
-                // CTA Button
                 HStack {
                     Text("START CHALLENGE")
                         .font(.appFont(15))
@@ -245,12 +236,6 @@ struct DailyChallengeCard: View {
                             colors: [Color.appPurple, Color.appBlue],
                             startPoint: .topLeading, endPoint: .bottomTrailing
                         ))
-                    
-                    // Subtle decorative circles
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 160, height: 160)
-                        .offset(x: 120, y: -60)
                 }
             )
             .overlay(
@@ -297,10 +282,14 @@ struct DailyChallengeCard: View {
                         .font(.appFont(22))
                         .foregroundColor(.white)
                     
-                    Text("You completed today's \(manager.gameTitle) challenge with a score of \(manager.todaysScore)!")
+                    
+                    Text("Completing today's \(manager.gameTitle)")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.white.opacity(0.9))
-                        .lineLimit(2)
+                    
+                    Text("challenge with a score of \(manager.todaysScore)!")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
                 }
             }
             
@@ -325,11 +314,6 @@ struct DailyChallengeCard: View {
                         colors: [Color.appGreen, Color.appGreenDark],
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     ))
-                
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 140, height: 140)
-                    .offset(x: -100, y: 70)
             }
         )
         .overlay(
