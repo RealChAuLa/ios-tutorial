@@ -8,32 +8,7 @@ import SwiftUI
 
 // MARK: - Settings View
 struct SettingsView: View {
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("notifHour") private var notifHour = 20
-    @AppStorage("notifMinute") private var notifMinute = 0
-    @AppStorage("locationEnabled") private var locationEnabled = false
-    @State private var showClearConfirmation = false
-    
-    private var timeBinding: Binding<Date> {
-        Binding<Date>(
-            get: {
-                var components = DateComponents()
-                components.hour = notifHour
-                components.minute = notifMinute
-                return Calendar.current.date(from: components) ?? Date()
-            },
-            set: { newDate in
-                let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
-                if let h = components.hour, let m = components.minute {
-                    notifHour = h
-                    notifMinute = m
-                    if notificationsEnabled {
-                        NotificationService.shared.scheduleDailyReminder(hour: h, minute: m)
-                    }
-                }
-            }
-        )
-    }
+    @StateObject private var viewModel = SettingsViewModel()
 
     var body: some View {
         NavigationStack {
@@ -42,15 +17,14 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: 24) {
-                        // ── Header Row ──────────────────────────────────────
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Settings")
                                     .font(.appFont(28))
                                     .foregroundColor(.primary)
-//                                Text("Customize your preferences & notifications")
-//                                    .font(.system(size: 14, weight: .medium, design: .rounded))
-//                                    .foregroundColor(.secondary)
+                                Text("Customize your preferences")
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundColor(.secondary)
                             }
                             Spacer()
                         }
@@ -67,36 +41,31 @@ struct SettingsView: View {
                                         Image(systemName: "bell.fill")
                                             .foregroundColor(.appGold)
                                     }
-                                    Text("Daily Challenge Reminder")
-                                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.primary)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Daily Challenge Reminder")
+                                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                        Text("Get a reminder to complete your daily challenge")
+                                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                    }
                                     Spacer()
-                                    Toggle("", isOn: $notificationsEnabled)
+                                    Toggle("", isOn: $viewModel.notificationsEnabled)
                                         .tint(.appGreen)
                                         .labelsHidden()
-                                        .onChange(of: notificationsEnabled) { _, newValue in
-                                            if newValue {
-                                                NotificationService.shared.requestPermission { granted in
-                                                    if granted {
-                                                        NotificationService.shared.scheduleDailyReminder(hour: notifHour, minute: notifMinute)
-                                                    } else {
-                                                        notificationsEnabled = false
-                                                    }
-                                                }
-                                            } else {
-                                                NotificationService.shared.cancelReminder()
-                                            }
+                                        .onChange(of: viewModel.notificationsEnabled) { _, newValue in
+                                            viewModel.handleNotificationToggle(newValue: newValue)
                                         }
                                 }
                                 
-                                if notificationsEnabled {
+                                if viewModel.notificationsEnabled {
                                     HStack {
                                         Text("Reminder Time")
                                             .font(.system(size: 14, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
                                             .padding(.leading, 50)
                                         Spacer()
-                                        DatePicker("", selection: timeBinding, displayedComponents: .hourAndMinute)
+                                        DatePicker("", selection: viewModel.timeBinding, displayedComponents: .hourAndMinute)
                                             .labelsHidden()
                                             .tint(.appBlue)
                                     }
@@ -106,11 +75,11 @@ struct SettingsView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
-                            .animation(.easeInOut(duration: 0.25), value: notificationsEnabled)
+                            .animation(.easeInOut(duration: 0.25), value: viewModel.notificationsEnabled)
                             
                             Divider().padding(.leading, 64)
                             
-                            // ── Location Tracking Se
+                            // ── Location Tracking Settings
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack(spacing: 14) {
                                     ZStack {
@@ -129,19 +98,11 @@ struct SettingsView: View {
                                             .foregroundColor(.secondary)
                                     }
                                     Spacer()
-                                    Toggle("", isOn: $locationEnabled)
+                                    Toggle("", isOn: $viewModel.locationEnabled)
                                         .tint(.appGreen)
                                         .labelsHidden()
-                                        .onChange(of: locationEnabled) { _, newValue in
-                                            if newValue {
-                                                LocationManager.shared.requestPermission { granted in
-                                                    if !granted {
-                                                        locationEnabled = false
-                                                    }
-                                                }
-                                            } else {
-                                                LocationManager.shared.stopTracking()
-                                            }
+                                        .onChange(of: viewModel.locationEnabled) { _, newValue in
+                                            viewModel.handleLocationToggle(newValue: newValue)
                                         }
                                 }
                             }
@@ -150,9 +111,9 @@ struct SettingsView: View {
                             
                             Divider().padding(.leading, 64)
                             
-                            // ── Clear All Game Data ──
+                            // Clear All Game Data
                             Button {
-                                showClearConfirmation = true
+                                viewModel.showClearConfirmation = true
                             } label: {
                                 HStack(spacing: 14) {
                                     ZStack {
@@ -187,37 +148,14 @@ struct SettingsView: View {
             }
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .navigationBar)
-            .alert("Clear All Game Data?", isPresented: $showClearConfirmation) {
+            .alert("Clear All Game Data?", isPresented: $viewModel.showClearConfirmation) {
                 Button("Cancel", role: .cancel) { }
                 Button("Clear Data", role: .destructive) {
-                    clearAllGameData()
+                    viewModel.authenticateAndClear()
                 }
             } message: {
-                Text("This will permanently delete your game history, streaks, high scores, and map locations. This action cannot be undone.")
+                Text("This will permanently delete All your game data This action cannot be undone.")
             }
-        }
-    }
-    
-    private func clearAllGameData() {
-        // Clear stored game sessions and notify observers
-        GameSessionStore.clearAll()
-        
-        // Clear high scores
-        UserDefaults.standard.removeObject(forKey: "highScore_lightItUp")
-        UserDefaults.standard.removeObject(forKey: "highScore_LightItUp")
-        UserDefaults.standard.removeObject(forKey: "highScore_TapFrenzy")
-        UserDefaults.standard.removeObject(forKey: "highScore_QuizRush")
-        
-        // Clear daily challenge streak and history
-        UserDefaults.standard.removeObject(forKey: "dc_streak")
-        UserDefaults.standard.removeObject(forKey: "dc_lastCompletedDate")
-        UserDefaults.standard.removeObject(forKey: "dc_savedDayString")
-        UserDefaults.standard.removeObject(forKey: "dc_savedGameMode")
-        
-        // Trigger UI & Daily Challenge refresh
-        Task { @MainActor in
-            DailyChallengeManager.shared.updateStreakAndCompletion()
-            NotificationCenter.default.post(name: .gameSessionSaved, object: nil)
         }
     }
 }
@@ -239,7 +177,7 @@ struct SettingsRow: View {
             }
             Text(title)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundColor(.primary)          // adapts to dark mode
+                .foregroundColor(.primary)
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.system(size: 13, weight: .bold))

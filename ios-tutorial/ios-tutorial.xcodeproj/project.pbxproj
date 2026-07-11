@@ -256,7 +256,7 @@
 				DEVELOPMENT_TEAM = Q7JFF5XKUH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Info.plist";
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ARCADE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to tag where you played each game and display your scores on the interactive map.";
@@ -293,7 +293,7 @@
 				DEVELOPMENT_TEAM = Q7JFF5XKUH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Info.plist";
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ARCADE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to tag where you played each game and display your scores on the interactive map.";

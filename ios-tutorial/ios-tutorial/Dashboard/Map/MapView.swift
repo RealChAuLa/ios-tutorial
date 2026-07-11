@@ -17,8 +17,7 @@ struct MapView: View {
         if !locationEnabled {
             MapPlaceholderView()
         } else {
-            NavigationStack {
-                ZStack(alignment: .top) {
+            ZStack(alignment: .top) {
                 // Main Map
                 Map(position: $mapPosition) {
                     // Show User Location if authorized
@@ -37,7 +36,7 @@ struct MapView: View {
                                         ))
                                     }
                                 } label: {
-                                    ZStack(alignment: .topTrailing) {
+                                    ZStack(alignment: .top) {
                                         // Pin Circle
                                         ZStack {
                                             Circle()
@@ -75,6 +74,7 @@ struct MapView: View {
                     }
                 }
                 .mapStyle(.standard(elevation: .realistic))
+                .ignoresSafeArea()
                 .onTapGesture {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         viewModel.selectedSession = nil
@@ -124,7 +124,6 @@ struct MapView: View {
                     .padding(16)
                     .glassCard(cornerRadius: 22)
                     
-                    
                     // Filter Capsules Row
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -164,9 +163,7 @@ struct MapView: View {
                         .padding(.bottom, 24)
                     }
                 }
-                }
             }
-            .navigationBarHidden(true)
         }
     }
 }
