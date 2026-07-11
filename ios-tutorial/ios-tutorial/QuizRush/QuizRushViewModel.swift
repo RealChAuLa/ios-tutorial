@@ -22,6 +22,13 @@ final class QuizRushViewModel: ObservableObject {
     @Published var streak = 0
     @Published var highScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
     @Published var isGameOver = false // NEW: Tracks if the round is finished
+    @Published var hasStarted = false
+    
+    // Configuration properties
+    @Published var selectedDifficulty: TriviaDifficulty = .any
+    @Published var selectedCategory: TriviaCategory = .any
+    @Published var selectedType: TriviaType = .any
+    @Published var selectedAmount: Int = 10
     
     private let service = TriviaService()
     
@@ -30,11 +37,25 @@ final class QuizRushViewModel: ObservableObject {
         return questions[currentIndex]
     }
     
+    func startGame() async {
+        currentIndex = 0
+        score = 0
+        streak = 0
+        isGameOver = false
+        hasStarted = true
+        await load()
+    }
+    
     func load() async {
         state = .loading
         highScore = UserDefaults.standard.integer(forKey: "highScore_QuizRush")
         do {
-            questions = try await service.fetchQuestions()
+            questions = try await service.fetchQuestions(
+                amount: selectedAmount,
+                category: selectedCategory,
+                difficulty: selectedDifficulty,
+                type: selectedType
+            )
             state = .loaded
         } catch {
             print("Error fetching questions: \(error)")
@@ -75,12 +96,13 @@ final class QuizRushViewModel: ObservableObject {
         GameSessionStore.save(GameSession(mode: "QuizRush", score: score, latitude: coords?.latitude, longitude: coords?.longitude))
     }
     
-    // NEW: Reset game state and pull 10 new questions
-    func resetGame() async {
-        currentIndex = 0
-        score = 0
-        streak = 0
+    func resetToMenu() {
         isGameOver = false
-        await load()
+        hasStarted = false
+    }
+    
+    // NEW: Reset game state and pull questions again with current settings
+    func resetGame() async {
+        await startGame()
     }
 }

@@ -61,9 +61,7 @@ struct LightItUpView: View {
                 .padding(.horizontal, 20)
             
             HStack(spacing: 8) {
-                Image(systemName: "crown.fill")
-                    .foregroundColor(.appGold)
-                Text("Best Score")
+                Text("Highscore")
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                 Spacer()
@@ -81,8 +79,6 @@ struct LightItUpView: View {
             .buttonStyle(AppButtonStyle(baseColor: .appGold, shadowColor: .appGoldDark))
             .padding(.top, 6)
         }
-        .padding(24)
-        .glassCard(cornerRadius: 24)
         .padding(.horizontal, 20)
     }
     
@@ -225,13 +221,9 @@ struct LightItUpView: View {
                 Divider()
                 
                 HStack {
-                    HStack(spacing: 6) {
-                        Image(systemName: "crown.fill")
-                            .foregroundColor(.appGold)
-                        Text("High Score")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            .foregroundColor(.secondary)
-                    }
+                    Text("Highscore")
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text("\(viewModel.highScore)")
                         .font(.appFont(22))
@@ -258,9 +250,6 @@ struct LightItUpView: View {
             }
             .padding(.top, 6)
         }
-        .padding(24)
-        .glassCard(cornerRadius: 24)
-        .padding(.horizontal, 20)
     }
 }
 

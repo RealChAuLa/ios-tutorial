@@ -14,7 +14,8 @@ final class TapFrenzyViewModel: ObservableObject {
 
     @Published var score = 0
     @Published var timeRemaining = 10
-    @Published var isGameActive = true
+    @Published var isGameActive = false
+    @Published var hasStarted = false
     @Published var currentChallenge: Challenge = Challenge.allCases.randomElement()!
 
     // Combo state
@@ -41,6 +42,18 @@ final class TapFrenzyViewModel: ObservableObject {
     // MARK: - Game Lifecycle
 
     init() {
+        // Timers start on startGame()
+    }
+
+    func startGame() {
+        score = 0
+        timeRemaining = 10
+        comboMultiplier = 1
+        lastTapTime = .distantPast
+        buttonColour = .blue
+        currentChallenge = Challenge.allCases.randomElement()!
+        hasStarted = true
+        isGameActive = true
         startTimers()
     }
 
@@ -51,6 +64,7 @@ final class TapFrenzyViewModel: ObservableObject {
         lastTapTime = .distantPast
         buttonColour = .blue
         currentChallenge = Challenge.allCases.randomElement()!
+        hasStarted = true
         isGameActive = true
         startTimers()
     }

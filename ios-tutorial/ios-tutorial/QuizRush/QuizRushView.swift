@@ -14,7 +14,10 @@ struct QuizRushView: View {
             AppBackground()
             
             VStack {
-                if viewModel.isGameOver {
+                if !viewModel.hasStarted {
+                    startScreen
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                } else if viewModel.isGameOver {
                     gameOverScreen
                         .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 } else {
@@ -37,14 +40,181 @@ struct QuizRushView: View {
             }
             .padding(16)
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.hasStarted)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.isGameOver)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.state)
-        .navigationTitle("Quiz Rush")
-        .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await viewModel.load()
-        }
+//        .navigationTitle("Quiz Rush")
+//        .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+    }
+    
+    // MARK: - Start Screen
+    private var startScreen: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(Color.appGreen.opacity(0.18))
+                        .frame(width: 90, height: 90)
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundColor(.appGreen)
+                        .shadow(color: .appGreen.opacity(0.5), radius: 12, x: 0, y: 6)
+                }
+                .padding(.top, 10)
+                
+                VStack(spacing: 6) {
+                    Text("QUIZ RUSH")
+                        .font(.appFont(28))
+                        .foregroundColor(.primary)
+                    Text("Customize and test your brain power!")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                
+                HStack(spacing: 8) {
+                    Text("Highscore")
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(viewModel.highScore)")
+                        .font(.appFont(24))
+                        .foregroundColor(.appGreen)
+                }
+                .padding(16)
+                .background(Color.primary.opacity(0.04))
+                .cornerRadius(16)
+                
+                // Category Slider (Topic Choice)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("SELECT TOPIC")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(TriviaCategory.allCases) { cat in
+                                FilterPill(
+                                    title: cat.label,
+                                    isSelected: viewModel.selectedCategory == cat,
+                                    color: .appGreen
+                                ) {
+                                    withAnimation(.easeInOut) { viewModel.selectedCategory = cat }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                    }
+                    .glassCard(cornerRadius: 22)
+                    .clipShape(Capsule())
+                }
+                
+                // Difficulty Slider
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("DIFFICULTY")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(TriviaDifficulty.allCases) { diff in
+                                FilterPill(
+                                    title: diff.label,
+                                    isSelected: viewModel.selectedDifficulty == diff,
+                                    color: difficultyColor(for: diff)
+                                ) {
+                                    withAnimation(.easeInOut) { viewModel.selectedDifficulty = diff }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                    }
+                    .glassCard(cornerRadius: 22)
+                    .clipShape(Capsule())
+                }
+                
+                // Question Count Slider
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("NUMBER OF QUESTIONS")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach([5, 10, 15, 20, 25, 30], id: \.self) { num in
+                                FilterPill(
+                                    title: "\(num)",
+                                    isSelected: viewModel.selectedAmount == num,
+                                    color: .appPurple
+                                ) {
+                                    withAnimation(.easeInOut) { viewModel.selectedAmount = num }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                    }
+                    .glassCard(cornerRadius: 22)
+                    .clipShape(Capsule())
+                }
+                
+                // Question Type Slider
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("QUESTION TYPE")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(TriviaType.allCases) { type in
+                                FilterPill(
+                                    title: type.label,
+                                    isSelected: viewModel.selectedType == type,
+                                    color: .appBlue
+                                ) {
+                                    withAnimation(.easeInOut) { viewModel.selectedType = type }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                    }
+                    .glassCard(cornerRadius: 22)
+                    .clipShape(Capsule())
+                }
+                
+                Button {
+                    Task { await viewModel.startGame() }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "play.fill")
+                        Text("START QUIZ")
+                    }
+                }
+                .buttonStyle(AppButtonStyle(baseColor: .appGreen, shadowColor: .appGreenDark))
+                .padding(.top, 4)
+            }
+            .padding(22)
+        }
+    }
+    
+    private func difficultyColor(for difficulty: TriviaDifficulty) -> Color {
+        switch difficulty {
+        case .any:    return .appBlue
+        case .easy:   return .appGreen
+        case .medium: return .appOrange
+        case .hard:   return .appRed
+        }
     }
     
     // MARK: - Loading Screen
@@ -70,11 +240,17 @@ struct QuizRushView: View {
             Text("Failed to load questions.")
                 .font(.appFont(20))
                 .foregroundColor(.primary)
-            Button("RETRY") {
-                Task { await viewModel.load() }
+            HStack(spacing: 14) {
+                Button("RETRY") {
+                    Task { await viewModel.load() }
+                }
+                .buttonStyle(AppButtonStyle(baseColor: .appGreen, shadowColor: .appGreenDark))
+                
+                Button("MENU") {
+                    viewModel.resetToMenu()
+                }
+                .buttonStyle(AppButtonStyle(baseColor: .appBlue, shadowColor: .appBlueDark))
             }
-            .buttonStyle(AppButtonStyle(baseColor: .appGreen, shadowColor: .appGreenDark))
-            .frame(width: 160)
         }
         .padding(32)
         .glassCard(cornerRadius: 24)
@@ -132,6 +308,11 @@ struct QuizRushView: View {
                 }
                 .buttonStyle(AppButtonStyle(baseColor: .appGreen, shadowColor: .appGreenDark))
                 
+                Button("BACK TO MENU") {
+                    viewModel.resetToMenu()
+                }
+                .buttonStyle(AppButtonStyle(baseColor: .appBlue, shadowColor: .appBlueDark))
+                
                 ScoreShareButton(
                     gameTitle: "Quiz Rush",
                     score: viewModel.score,
@@ -142,8 +323,6 @@ struct QuizRushView: View {
             }
             .padding(.top, 6)
         }
-        .padding(24)
-        .glassCard(cornerRadius: 24)
         .padding(.horizontal, 20)
     }
     

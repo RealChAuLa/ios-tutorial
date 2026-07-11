@@ -1,10 +1,29 @@
 import Foundation
 
 struct TriviaService {
-    private let urlString = "https://opentdb.com/api.php?amount=10&type=multiple"
-    
-    func fetchQuestions() async throws -> [TriviaQuestion] {
-        guard let url = URL(string: urlString) else {
+    func fetchQuestions(
+        amount: Int = 10,
+        category: TriviaCategory = .any,
+        difficulty: TriviaDifficulty = .any,
+        type: TriviaType = .any
+    ) async throws -> [TriviaQuestion] {
+        var components = URLComponents(string: "https://opentdb.com/api.php")!
+        
+        var queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "amount", value: "\(amount)")
+        ]
+        if category != .any {
+            queryItems.append(URLQueryItem(name: "category", value: "\(category.rawValue)"))
+        }
+        if difficulty != .any {
+            queryItems.append(URLQueryItem(name: "difficulty", value: difficulty.rawValue))
+        }
+        if type != .any {
+            queryItems.append(URLQueryItem(name: "type", value: type.rawValue))
+        }
+        components.queryItems = queryItems
+        
+        guard let url = components.url else {
             throw URLError(.badURL)
         }
         

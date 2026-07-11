@@ -17,18 +17,71 @@ struct TapFrenzyView: View {
             AppBackground()
             
             VStack {
-                if viewModel.isGameActive {
-                    challengeView
+                if !viewModel.hasStarted {
+                    startScreen
                         .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                } else if viewModel.isGameActive {
+                    challengeView
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 } else {
                     gameOverView
                         .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 }
             }
-            .padding()
+            .padding(16)
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.hasStarted)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.isGameActive)
         .toolbar(.hidden, for: .tabBar)
+    }
+
+    // MARK: - Start Screen
+    private var startScreen: some View {
+        VStack(spacing: 28) {
+            ZStack {
+                Circle()
+                    .fill(Color.appBlue.opacity(0.18))
+                    .frame(width: 90, height: 90)
+                Image(systemName: "hand.tap.fill")
+                    .font(.system(size: 44, weight: .bold))
+                    .foregroundColor(.appBlue)
+                    .shadow(color: .appBlue.opacity(0.5), radius: 12, x: 0, y: 6)
+            }
+            .padding(.top, 10)
+            
+            VStack(spacing: 6) {
+                Text("TAP FRENZY")
+                    .font(.appFont(28))
+                    .foregroundColor(.primary)
+                Text("Tap fast when the prompt appears!")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Divider()
+                .padding(.horizontal, 20)
+            
+            HStack(spacing: 8) {
+                Text("Highscore")
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("\(viewModel.highScore)")
+                    .font(.appFont(24))
+                    .foregroundColor(.appBlue)
+            }
+            .padding(16)
+            .background(Color.primary.opacity(0.04))
+            .cornerRadius(16)
+            
+            Button("START GAME") {
+                viewModel.startGame()
+            }
+            .buttonStyle(AppButtonStyle(baseColor: .appBlue, shadowColor: .appBlueDark))
+            .padding(.top, 6)
+        }
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Game Over
@@ -63,13 +116,9 @@ struct TapFrenzyView: View {
                 Divider()
                 
                 HStack {
-                    HStack(spacing: 6) {
-                        Image(systemName: "crown.fill")
-                            .foregroundColor(.appGold)
-                        Text("High Score")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            .foregroundColor(.secondary)
-                    }
+                    Text("Highscore")
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text("\(viewModel.highScore)")
                         .font(.appFont(22))
@@ -96,9 +145,6 @@ struct TapFrenzyView: View {
             }
             .padding(.top, 6)
         }
-        .padding(24)
-        .glassCard(cornerRadius: 24)
-        .padding(.horizontal, 20)
     }
 
     // MARK: - Challenge Router
