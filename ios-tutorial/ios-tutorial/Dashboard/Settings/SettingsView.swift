@@ -110,7 +110,7 @@ struct SettingsView: View {
                             
                             Divider().padding(.leading, 64)
                             
-                            // ── Location Tracking Settings ──
+                            // ── Location Tracking Se
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack(spacing: 14) {
                                     ZStack {
@@ -130,7 +130,7 @@ struct SettingsView: View {
                                     }
                                     Spacer()
                                     Toggle("", isOn: $locationEnabled)
-                                        .tint(.appPurple)
+                                        .tint(.appGreen)
                                         .labelsHidden()
                                         .onChange(of: locationEnabled) { _, newValue in
                                             if newValue {

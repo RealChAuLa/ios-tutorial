@@ -51,7 +51,7 @@ struct LightItUpView: View {
                 Text("LIGHT IT UP")
                     .font(.appFont(28))
                     .foregroundColor(.primary)
-                Text("Memorize the lit tiles and tap them fast!")
+                Text("Tap the lit lights fast!")
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -164,13 +164,6 @@ struct LightItUpView: View {
                                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                                         .stroke(isLit ? Color.white.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 1.5)
                                 )
-                            
-                            if isLit {
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                            }
                         }
                     }
                     .buttonStyle(.plain)

@@ -238,9 +238,6 @@ struct SelectedSessionCard: View {
                         HStack(spacing: 3) {
                             Image(systemName: "crown.fill")
                                 .foregroundColor(.appGold)
-                            Text("HIGH SCORE")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
-                                .foregroundColor(.appGold)
                         }
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)
@@ -308,7 +305,7 @@ struct MapPlaceholderView: View {
                             .font(.appFont(24))
                             .foregroundColor(.primary)
                         
-                        Text("Turn on Location Tracking in Settings to explore where you've played each game and view high scores on the interactive map!")
+                        Text("Turn on Location Tracking in Settings to explore and view high scores on the interactive map!")
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)

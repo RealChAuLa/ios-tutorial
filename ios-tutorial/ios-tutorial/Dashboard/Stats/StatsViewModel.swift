@@ -105,7 +105,7 @@ final class StatsViewModel: ObservableObject {
         // 3. Per-Game Breakdowns
         let modes = [
             ("TapFrenzy", "Tap Frenzy", "Fast reflex challenge", "hand.tap.fill", Color.appBlue, Color.appBlueDark, tapBest),
-            ("LightItUp", "Light It Up", "Memory & pattern game", "bolt.fill", Color.appGold, Color.appGoldDark, lightBest),
+            ("LightItUp", "Light It Up", "Pattern game", "bolt.fill", Color.appGold, Color.appGoldDark, lightBest),
             ("QuizRush", "Quiz Rush", "Test your knowledge", "brain.head.profile", Color.appGreen, Color.appGreenDark, quizBest)
         ]
         

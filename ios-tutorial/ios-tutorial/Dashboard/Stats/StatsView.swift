@@ -376,8 +376,8 @@ struct GameStatCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "gamecontroller.fill")
                             .font(.system(size: 11))
-                            .foregroundColor(stat.color)
-                        Text("\(stat.gamesPlayed) played")
+                            .foregroundColor(.black)
+                        Text("\(stat.gamesPlayed)")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                     }
@@ -385,8 +385,8 @@ struct GameStatCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 11))
-                            .foregroundColor(.appGold)
-                        Text("Best: \(stat.highScore)")
+                            .foregroundColor(.black)
+                        Text("\(stat.highScore)")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                     }
