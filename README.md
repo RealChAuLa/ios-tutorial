@@ -1,12 +1,11 @@
-# Arcade — iOS Mini-Game Hub
+# Arcade | Mini Game Collection
 
-> A polished, multi-game iOS application built with SwiftUI — featuring real device hardware integrations, live REST data, and a unified glassmorphism design system.
+> a Multi game interactive iOS application built with SwiftUI
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Screenshots](#screenshots)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
@@ -19,17 +18,7 @@
 
 ---
 
-## Overview
-
-Arcade is a native iOS gaming hub that houses three distinct mini-games inside a unified, glassmorphism-styled shell application. The app integrates real device capabilities — `CoreLocation`, `UserNotifications`, `MapKit`, `SwiftUI Charts`, `LocalAuthentication`, and a live REST API — into a cohesive, production-quality experience built entirely in SwiftUI.
-
-A daily challenge system rotates through the three games each day, rewarding consistent players with a streak counter displayed on the home screen. All game sessions are persisted locally and visualised in a stats dashboard with per-game breakdowns, activity charts, and a geo-tagged map of where each session was played.
-
----
-
 ## Screenshots
-
-> *(Add screenshots here — Home, Stats, Map, Settings)*
 
 <table>
   <tr>
@@ -248,7 +237,7 @@ A knowledge quiz game powered by the **Open Trivia Database API**.
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone git@github.com:RealChAuLa/ios-tutorial.git
 cd ios-tutorial
 
 # Open in Xcode
@@ -280,10 +269,4 @@ open ios-tutorial.xcodeproj
 
 ## Reflection
 
-Every week there was a new concept to integrate — first it was just views, then ViewModels, then CoreLocation, then a live API, then notifications, then Maps, then biometric auth.
-
-What surprised me most was how much of the complexity was in the *glue* between features rather than in any single feature itself. Getting the daily challenge streak to update correctly when a session is saved, while also refreshing the Stats view and the Map view — all without any of those things having a direct reference to each other — was the most interesting architectural challenge. Using `NotificationCenter` to broadcast a single `.gameSessionSaved` event that all consumers subscribe to felt like the right solution, and it kept things clean.
-
-The design system in `Utils.swift` was also something I'm proud of. Starting with a consistent colour palette and reusable modifiers like `GlassCard` and `AppButtonStyle` meant every screen had a coherent look without copy-pasting styles everywhere.
-
-If I were to extend this further, I'd add iCloud sync for game sessions, a leaderboard, and more game modes. But as a learning project, it ended up being a lot more than I expected when I wrote the first line of code.
+Every week there was a new concept to integrate, first it was just views, then MVVM after that more complicated things (notifications , location) came up, and those things helped to get a general idea of how to build a iOS mobile application, it would definitely help me with the next class assessment.
